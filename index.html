@@ -39,17 +39,19 @@ select{-webkit-appearance:none;appearance:none}
 /* Phone test build: the app is a fixed 402px-wide design, scaled to the screen width */
 :root { --ground: #FFFFFF; --desk: #EDEDED; color-scheme: light }
 html, body { height: 100%; background: var(--ground); }
-#stage { position: fixed; left: 0; right: 0; top: env(safe-area-inset-top, 0px); bottom: env(safe-area-inset-bottom, 0px); overflow: hidden; background: var(--ground); }
+#stage { position: fixed; inset: 0; overflow: hidden; background: var(--ground); }
+#safe-probe { position: fixed; left: 0; bottom: 0; width: 1px; height: env(safe-area-inset-bottom, 0px); visibility: hidden; pointer-events: none; }
 #stage.desk { background: var(--desk); }
 #app { position: absolute; left: 50%; top: 0; width: 402px; transform-origin: top center; }
 #stage.desk #app { border-radius: 40px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.12); }
 #app > div { height: var(--app-h, 874px) !important; }
-#app nav { top: auto !important; bottom: 21px; }
+#app nav { top: auto !important; bottom: calc(12px + var(--sb, 0px)); }
+#app .scroll > div[style*="padding: 63px 0 72px"] { padding-bottom: calc(100px + var(--sb, 0px)) !important; }
 </style>
 <style>html,body{margin:0;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}</style>
 </head>
 <body>
-<div id="stage"><div id="app"></div></div>
+<div id="safe-probe"></div><div id="stage"><div id="app"></div></div>
 <template id="tpl">
 <div style="position: relative; width: 402px; height: 874px; box-sizing: border-box; background: #FFFFFF; color: #000000; font-family: 'Figtree', sans-serif; overflow: hidden">
 
@@ -751,18 +753,23 @@ function DC_wrap(e, el) {
   } });
 }
 function DC_fire(type, e, el) { var fn = DC_handlers[+el.getAttribute('data-ev-' + type)]; if (fn) fn(DC_wrap(e, el)); }
+var DC_CROP = 44; // the design frame's own status-bar strip, hidden on a real phone
 function DC_fit() {
   var stage = document.getElementById('stage'), app = document.getElementById('app');
-  var W = stage.clientWidth, H = stage.clientHeight, s, h;
-  if (W >= 600) { s = Math.min(1, (H - 32) / 874); h = 874; stage.classList.add('desk'); app.style.top = Math.max(16, (H - 874 * s) / 2) + 'px'; }
-  else { s = W / 402; h = Math.max(560, H / s); stage.classList.remove('desk'); app.style.top = '0px'; }
+  var W = window.innerWidth, H = window.innerHeight, s, h, top;
+  var probe = document.getElementById('safe-probe');
+  var sb = probe ? probe.offsetHeight : 0;
+  if (W >= 600) { s = Math.min(1, (H - 32) / 874); h = 874; sb = 0; stage.classList.add('desk'); top = Math.max(16, (H - 874 * s) / 2); }
+  else { s = W / 402; h = H / s + DC_CROP; stage.classList.remove('desk'); top = -DC_CROP * s; }
   DC_SCALE = s;
+  app.style.top = top + 'px';
   app.style.transform = 'translateX(-50%) scale(' + s + ')';
   app.style.setProperty('--app-h', h + 'px');
+  app.style.setProperty('--sb', (sb / s) + 'px');
 }
 function DC_MOUNT(C, props) {
   DC_inst = new C(props);
-  DC_fit(); window.addEventListener('resize', DC_fit);
+  DC_fit(); window.addEventListener('resize', DC_fit); window.addEventListener('orientationchange', DC_fit); window.addEventListener('pageshow', DC_fit); if (window.visualViewport) window.visualViewport.addEventListener('resize', DC_fit); [100, 400, 1000].forEach(function (t) { setTimeout(DC_fit, t); });
   var app = document.getElementById('app');
   ['click', 'pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'change', 'input', 'wheel'].forEach(function (type) {
     app.addEventListener(type, function (e) {
@@ -1684,7 +1691,6 @@ class Component extends DCLogic {
     };
   }
 }
-
 
 (function () {
   var KEY = 'cooked-v1', KEEP = ['eaten', 'extras', 'plan', 'methods', 'prefs', 'me', 'partner'];
