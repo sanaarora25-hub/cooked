@@ -63,10 +63,10 @@ html, body { height: 100%; background: var(--ground); }
       <div style="display: flex; justify-content: flex-end; padding-right: 31px; height: 42px">
         <button onClick="{{openProfile}}" aria-label="Your preferences" style="width: 42px; height: 42px; border-radius: 21px; border: none; background: #000000; color: #FFFFFF; font-size: 20px; font-weight: 400; padding: 0; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg></button>
       </div>
-      <div style="padding-left: 32px; margin-top: 1px; font-size: 12px; font-weight: 300; line-height: 16px; color: #202020">{{dateText}}</div>
-      <h1 style="margin: 6px 0 0; padding-left: 32px; font-size: 25px; font-weight: 600; line-height: 30px; color: #3D5CF6; letter-spacing: -0.01em">Hello, you.</h1>
+      <div style="padding-left: 25px; margin-top: 1px; font-size: 12px; font-weight: 300; line-height: 16px; color: #202020">{{dateText}}</div>
+      <h1 style="margin: 6px 0 0; padding-left: 25px; font-size: 25px; font-weight: 600; line-height: 30px; color: #3D5CF6; letter-spacing: -0.01em">Hello, you.</h1>
 
-      <div style="margin-top: 14px; padding: 0 25px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr))">
+      <div style="margin-top: 24px; padding: 0 25px; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr))">
         <template data-sc="for" list="{{days}}" as="d" hint-placeholder-count="7">
           <button onClick="{{d.pick}}" aria-label="{{d.full}}" aria-pressed="{{d.pressed}}" style="{{d.style}}">
             <span style="font-size: 11px; font-weight: 300; line-height: 14px">{{d.short}}</span>
@@ -241,7 +241,7 @@ html, body { height: 100%; background: var(--ground); }
       <div aria-hidden="{{recipeBarHidden}}" style="{{recipeBarStyle}}">
         <div style="font-size: 17px; font-weight: 600; line-height: 22px; max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{rTitle}}</div>
       </div>
-      <button onClick="{{closeRecipe}}" aria-label="Back" style="position: absolute; z-index: 32; left: 20px; top: 54px; width: 44px; height: 44px; padding: 0; border: none; border-radius: 22px; background: #FFFFFF; box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+      <button onClick="{{closeRecipe}}" aria-label="Back" style="position: absolute; z-index: 32; left: 25px; top: 61px; width: 44px; height: 44px; padding: 0; border: none; border-radius: 22px; background: #FFFFFF; box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
     </div>
   </template>
 
@@ -273,7 +273,7 @@ html, body { height: 100%; background: var(--ground); }
   <template data-sc="if" value="{{profOn}}" hint-placeholder-val="{{ false }}">
     <div role="dialog" aria-label="Your preferences" style="{{profStyle}}">
       <div class="scroll" style="position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden">
-        <div style="padding: 132px 25px 130px">
+        <div style="padding: 158px 25px 130px">
 
           <div style="margin-top: 34px; padding: 20px 20px 12px; border-radius: 16px; background: #3D5CF6; color: #FFFFFF">
           <h2 style="margin: -4px 0 2px; font-size: 18px; font-weight: 600; line-height: 22px; color: #FFFFFF">You</h2>
@@ -475,17 +475,17 @@ html, body { height: 100%; background: var(--ground); }
           </div>
         </div>
       </div>
-      <div style="position: absolute; left: 0; right: 0; top: 0; height: 146px; z-index: 31; background: #FFFFFF">
-        <h1 style="position: absolute; left: 25px; top: 104px; margin: 0; font-size: 25px; font-weight: 600; line-height: 30px; letter-spacing: -0.01em; color: #3D5CF6">Your preferences</h1>
+      <div style="position: absolute; left: 0; right: 0; top: 0; height: 172px; z-index: 31; background: #FFFFFF">
+        <h1 style="position: absolute; left: 25px; top: 128px; margin: 0; font-size: 25px; font-weight: 600; line-height: 30px; letter-spacing: -0.01em; color: #3D5CF6">Your preferences</h1>
       </div>
-      <button onClick="{{closeProfile}}" aria-label="Back" style="position: absolute; z-index: 32; left: 20px; top: 54px; width: 44px; height: 44px; padding: 0; border: none; border-radius: 22px; background: #FFFFFF; box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
+      <button onClick="{{closeProfile}}" aria-label="Back" style="position: absolute; z-index: 32; left: 25px; top: 61px; width: 44px; height: 44px; padding: 0; border: none; border-radius: 22px; background: #FFFFFF; box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
     </div>
   </template>
 
   <template data-sc="if" value="{{isPlan}}" hint-placeholder-val="{{ false }}">
     <div class="scroll" onScroll="{{onPlanScroll}}" onWheel="{{planWheel}}" style="position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain">
       <div onPointerDown="{{planDown}}" onPointerMove="{{planMove}}" onPointerUp="{{planUp}}" onPointerCancel="{{planUp}}" style="{{planInner}}">
-      <div style="position: relative; height: 190px">
+      <div style="position: relative; height: 199px">
         <button onClick="{{prevWeek}}" aria-label="Previous week" style="{{prevStyle}}">
           <svg width="9" height="22" viewBox="0 0 9 22" aria-hidden="true"><path d="M9 0L0 11l9 11z" fill="#FFDA72"></path></svg>
         </button>
@@ -602,7 +602,7 @@ html, body { height: 100%; background: var(--ground); }
     </div>
   </template>
 
-  <nav aria-label="Main" style="position: absolute; left: 27px; top: 799px; width: 352px; height: 54px; box-sizing: border-box; z-index: 20; border-radius: 27px; background: rgba(255,255,255,0.8); -webkit-backdrop-filter: blur(18px) saturate(180%); backdrop-filter: blur(18px) saturate(180%); box-shadow: 0 0 0 0.5px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)">
+  <nav aria-label="Main" style="position: absolute; left: 27px; top: 799px; width: 352px; height: 54px; box-sizing: border-box; z-index: 20; border-radius: 27px; background: linear-gradient(180deg, rgba(255,255,255,0.62), rgba(255,255,255,0.48)); -webkit-backdrop-filter: blur(12px) saturate(180%); backdrop-filter: blur(12px) saturate(180%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), inset 0 0 0 1px rgba(255,255,255,0.5), 0 0 0 0.5px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06)">
     <template data-sc="for" list="{{nav}}" as="n" hint-placeholder-count="4">
       <button onClick="{{n.go}}" aria-current="{{n.current}}" style="{{n.style}}">
         <template data-sc="if" value="{{n.isToday}}" hint-placeholder-val="{{ false }}">
@@ -1116,7 +1116,7 @@ class Component extends DCLogic {
   openEdit(week, day) {
     var self = this;
     var col = day % 2, row = Math.floor(day / 2);
-    var rect = { l: 22 + col * 185, t: 190 + row * 185 - (this.planScroll || 0), w: 173, h: 173 };
+    var rect = { l: 22 + col * 185, t: 199 + row * 185 - (this.planScroll || 0), w: 173, h: 173 };
     clearTimeout(this.e1); clearTimeout(this.e2); clearTimeout(this.e3);
     this.setState({ edit: { week: week, day: day, rect: rect }, phase: 'pre', draft: this.copy(this.state.plan[week][day]) });
     this.e1 = setTimeout(function () { self.setState({ phase: 'lift' }); }, 30);
@@ -1310,7 +1310,7 @@ class Component extends DCLogic {
       };
     }) : [];
     function arrowStyle(left, enabled) {
-      return 'position: absolute; z-index: 2; left: ' + left + 'px; top: 112px; width: 44px; height: 44px; border: none; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center; opacity: ' + (enabled ? 1 : 0.3) + '; cursor: ' + (enabled ? 'pointer' : 'default') + ';';
+      return 'position: absolute; z-index: 2; left: ' + left + 'px; top: 121px; width: 44px; height: 44px; border: none; background: transparent; padding: 0; display: flex; align-items: center; justify-content: center; opacity: ' + (enabled ? 1 : 0.3) + '; cursor: ' + (enabled ? 'pointer' : 'default') + ';';
     }
     function fill(kind) {
       var out = [];
@@ -1694,8 +1694,8 @@ class Component extends DCLogic {
       dateShort: this.DAY_FULL[st.sel].charAt(0) + this.DAY_FULL[st.sel].slice(1).toLowerCase() + ', ' + (11 + st.sel) + ' Oct',
       rangeText: meta.start + '-' + (meta.start + 6) + ' Oct',
       weekLabel: meta.label,
-      rangeStyle: 'position: absolute; left: 0; right: 0; top: 116px; text-align: center; font-size: 30px; font-weight: 400; line-height: 36px; color: ' + (grey ? '#8A8A8A' : '#000000') + ';',
-      weekLabelStyle: 'position: absolute; left: 0; right: 0; top: 151px; text-align: center; font-size: 15px; font-weight: 400; line-height: 19px; color: ' + (grey ? '#8A8A8A' : '#000000') + ';',
+      rangeStyle: 'position: absolute; left: 0; right: 0; top: 125px; text-align: center; font-size: 30px; font-weight: 400; line-height: 36px; color: ' + (grey ? '#8A8A8A' : '#000000') + ';',
+      weekLabelStyle: 'position: absolute; left: 0; right: 0; top: 160px; text-align: center; font-size: 15px; font-weight: 400; line-height: 19px; color: ' + (grey ? '#8A8A8A' : '#000000') + ';',
       prevStyle: arrowStyle(92, wi > 0), nextStyle: arrowStyle(265, wi < 2),
       prevWeek: function () { if (wi > 0) self.slideWeek('prev'); },
       nextWeek: function () { if (wi < 2) self.slideWeek('next'); },
