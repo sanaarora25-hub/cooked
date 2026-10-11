@@ -241,10 +241,7 @@ html, body { height: 100%; background: var(--ground); }
       <div aria-hidden="{{recipeBarHidden}}" style="{{recipeBarStyle}}">
         <div style="font-size: 17px; font-weight: 600; line-height: 22px; max-width: 230px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{rTitle}}</div>
       </div>
-      <button onClick="{{closeRecipe}}" style="position: absolute; z-index: 32; left: 10px; top: 54px; height: 44px; padding: 0 10px 0 4px; border: none; border-radius: 22px; background: transparent; display: flex; align-items: center; gap: 2px; font-size: 15px; font-weight: 500; color: #3D5CF6">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3D5CF6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
-        Today
-      </button>
+      <button onClick="{{closeRecipe}}" aria-label="Back" style="position: absolute; z-index: 32; left: 20px; top: 54px; width: 44px; height: 44px; padding: 0; border: none; border-radius: 22px; background: #FFFFFF; box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
     </div>
   </template>
 
@@ -276,9 +273,7 @@ html, body { height: 100%; background: var(--ground); }
   <template data-sc="if" value="{{profOn}}" hint-placeholder-val="{{ false }}">
     <div role="dialog" aria-label="Your preferences" style="{{profStyle}}">
       <div class="scroll" style="position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden">
-        <div style="padding: 110px 25px 130px">
-          <div style="font-size: 12px; font-weight: 300; line-height: 16px; color: #202020">PROFILE</div>
-          <h1 style="margin: 6px 0 0; font-size: 25px; font-weight: 600; line-height: 30px; letter-spacing: -0.01em; color: #3D5CF6">Your preferences</h1>
+        <div style="padding: 132px 25px 130px">
 
           <div style="margin-top: 34px; padding: 20px 20px 12px; border-radius: 16px; background: #3D5CF6; color: #FFFFFF">
           <h2 style="margin: -4px 0 2px; font-size: 18px; font-weight: 600; line-height: 22px; color: #FFFFFF">You</h2>
@@ -480,11 +475,10 @@ html, body { height: 100%; background: var(--ground); }
           </div>
         </div>
       </div>
-      <div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 0; height: 100px; z-index: 31; background: linear-gradient(to bottom, #FFFFFF 70%, rgba(255,255,255,0))"></div>
-      <button onClick="{{closeProfile}}" style="position: absolute; z-index: 32; left: 10px; top: 54px; height: 44px; padding: 0 10px 0 4px; border: none; border-radius: 22px; background: transparent; display: flex; align-items: center; gap: 2px; font-size: 15px; font-weight: 500; color: #3D5CF6">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3D5CF6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
-        Today
-      </button>
+      <div style="position: absolute; left: 0; right: 0; top: 0; height: 146px; z-index: 31; background: #FFFFFF">
+        <h1 style="position: absolute; left: 25px; top: 104px; margin: 0; font-size: 25px; font-weight: 600; line-height: 30px; letter-spacing: -0.01em; color: #3D5CF6">Your preferences</h1>
+      </div>
+      <button onClick="{{closeProfile}}" aria-label="Back" style="position: absolute; z-index: 32; left: 20px; top: 54px; width: 44px; height: 44px; padding: 0; border: none; border-radius: 22px; background: #FFFFFF; box-shadow: 0 2px 12px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg></button>
     </div>
   </template>
 
@@ -647,24 +641,25 @@ html, body { height: 100%; background: var(--ground); }
         </div>
       </div>
       <div style="{{panelLayerStyle}}">
-        <div style="position: absolute; left: 32px; top: 33px; font-size: 20px; font-weight: 400; line-height: 24px">{{panelTitle}}</div>
+        <div style="position: absolute; left: 32px; top: 33px; font-size: 20px; font-weight: 400; line-height: 24px; color: #000000">{{panelTitle}}</div>
         <template data-sc="for" list="{{panelRows}}" as="p" hint-placeholder-count="4">
           <div style="{{p.wrap}}">
-            <div style="display: flex; justify-content: space-between; align-items: baseline"><label for="{{p.fid}}" style="font-size: 12px; font-weight: 400; line-height: 15px; color: #5C5C5C">{{p.label}}</label></div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline"><label for="{{p.fid}}" style="font-size: 12px; font-weight: 400; line-height: 15px; color: #5C5C5C">{{p.label}}</label><span style="font-size: 12px; font-weight: 400; line-height: 15px; color: #5C5C5C">{{p.selInfo}}</span></div>
             <div style="margin-top: 10.5px; height: 1px; background: #8A8A8A"></div>
             <div style="position: relative; height: 31px">
-              <select id="{{p.fid}}" value="{{p.value}}" onChange="{{p.change}}" style="width: 255px; height: 31px; border: none; background: transparent; padding: 0 22px 0 0; font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 500; color: #000000; outline-offset: 2px">
-                <option value="">Choose a meal</option>
+              <select id="{{p.fid}}" value="{{p.value}}" onChange="{{p.change}}" style="width: 255px; height: 31px; border: none; background: transparent; padding: 0 22px 0 0; font-family: 'Figtree', sans-serif; font-size: 12px; font-weight: 500; color: transparent; outline-offset: 2px">
+                <option value="" style="color: #000000">Choose a meal</option>
                 <template data-sc="for" list="{{p.options}}" as="o" hint-placeholder-count="3">
-                  <option value="{{o.id}}">{{o.name}}</option>
+                  <option value="{{o.id}}" style="color: #000000">{{o.name}}</option>
                 </template>
               </select>
+              <span aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 225px; line-height: 31px; font-size: 12px; font-weight: 500; color: #000000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none">{{p.selName}}</span>
               <svg width="10" height="7" viewBox="0 0 10 7" aria-hidden="true" style="position: absolute; left: 234px; top: 13px; pointer-events: none"><path d="M0 0h10L5 7z" fill="#000000"></path></svg>
             </div>
             <div style="height: 1px; background: #8A8A8A"></div>
           </div>
         </template>
-        <div style="{{panelTotalStyle}}"><span style="{{panelTotalNum}}">{{panelTotal}}</span> kcal · <span style="font-weight: 700; color: #000000">{{panelProtein}}g</span> protein</div>
+        <div style="{{panelTotalStyle}}"><span style="{{panelTotalNum}}">{{panelTotal}}</span> kcal &middot; <span style="font-weight: 700; color: #000000">{{panelProtein}}g</span> protein</div>
         <button onClick="{{cancelEdit}}" style="position: absolute; left: 154px; top: 432px; width: 67px; height: 23px; border: none; border-radius: 12px; background: #D9D9D9; font-size: 12px; font-weight: 400; color: #000000; padding: 0">Cancel</button>
         <button onClick="{{saveEdit}}" style="position: absolute; left: 228px; top: 432px; width: 68px; height: 23px; border: none; border-radius: 12px; background: #3D5CF6; font-size: 12px; font-weight: 400; color: #FFFFFF; padding: 0">Save</button>
       </div>
@@ -1431,7 +1426,7 @@ class Component extends DCLogic {
       cloneStyle = 'position: absolute; left: ' + P.l + 'px; top: ' + P.t + 'px; width: ' + P.w + 'px; height: ' + P.h + 'px; overflow: hidden; background: #FFFFFF; pointer-events: auto; transform-origin: 0 0; transform: ' + tf + '; transition: transform ' + ease + ', box-shadow .3s; will-change: transform; box-shadow: ' + (ph === 'pre' || ph === 'closing' ? '0 1px 5px rgba(0,0,0,0.13)' : '0 12px 30px rgba(0,0,0,0.18)') + ';';
       var showCard = ph !== 'open';
       cardLayerStyle = 'position: absolute; left: 0; top: 0; width: 173px; height: 173px; box-sizing: border-box; padding: 10px 10px 0; transform-origin: 0 0; transform: scale(' + (1 / sx) + ', ' + (1 / sy) + '); opacity: ' + (showCard ? 1 : 0) + '; transition: opacity ' + (showCard ? '.18s .14s' : '.12s') + ';';
-      panelLayerStyle = 'position: absolute; left: 0; top: 0; width: 313px; height: 474px; opacity: ' + (ph === 'open' ? 1 : 0) + '; transition: opacity ' + (ph === 'open' ? '.24s .22s' : '.1s') + '; pointer-events: ' + (ph === 'open' ? 'auto' : 'none') + ';';
+      panelLayerStyle = 'position: absolute; left: 0; top: 0; width: 313px; height: 474px; color: #000000; opacity: ' + (ph === 'open' ? 1 : 0) + '; transition: opacity ' + (ph === 'open' ? '.24s .22s' : '.1s') + '; pointer-events: ' + (ph === 'open' ? 'auto' : 'none') + ';';
       overlayStyle = 'position: absolute; inset: 0; z-index: 40; background: rgba(229,229,229,0.82); opacity: ' + (ph === 'lift' || ph === 'open' ? 1 : 0) + '; transition: opacity ' + (ph === 'closing' ? '.3s' : '.22s') + ' ease;';
       var startN = this.WEEK_META[ed.week].start + ed.day;
       cloneTitle = this.DAY_SHORT[ed.day] + ' ' + startN;
@@ -1440,14 +1435,16 @@ class Component extends DCLogic {
       var draft = st.draft || {};
       panelTotal = this.SLOTS.reduce(function (t, sl) { return t + (draft[sl] ? self.kcalFor(draft[sl]) : 0); }, 0);
       panelProtein = this.SLOTS.reduce(function (t, sl) { return t + (draft[sl] ? self.proteinFor(draft[sl]) : 0); }, 0);
-      panelTotalStyle = 'position: absolute; left: 32px; top: 432px; height: 23px; display: flex; align-items: center; gap: 4px; font-size: 12px; line-height: 15px; color: #5C5C5C;';
+      panelTotalStyle = 'position: absolute; left: 32px; top: 394px; height: 15px; display: flex; align-items: center; gap: 4px; font-size: 12px; line-height: 15px; color: #5C5C5C;';
       panelTotalNum = 'font-size: 12px; font-weight: 700; color: ' + (panelTotal > this.limit ? '#E2552B' : '#000000') + ';';
       panelRows = this.SLOTS.map(function (slot, i) {
         return {
           fid: 'meal-' + slot,
           label: self.SLOT_LABEL[slot].toUpperCase(),
           value: draft[slot] || '',
-                    wrap: 'position: absolute; left: 32px; top: ' + (81.5 + 78 * i) + 'px; width: 255px;',
+                    selName: draft[slot] && self.LIB[draft[slot]] ? self.LIB[draft[slot]].name : 'Choose a meal',
+          selInfo: draft[slot] && self.LIB[draft[slot]] ? self.kcalFor(draft[slot]) + ' kcal \u00b7 ' + self.proteinFor(draft[slot]) + 'g protein' : '',
+          wrap: 'position: absolute; left: 32px; top: ' + (81.5 + 78 * i) + 'px; width: 255px;',
           options: (function () { var ids = self.strictIds(slot); if (draft[slot] && ids.indexOf(draft[slot]) < 0) ids.push(draft[slot]); if (!ids.length) ids = self.allowedIds(slot); return ids; })().map(function (k) { return { id: k, name: self.LIB[k].name + '  ·  ' + self.kcalFor(k) + ' kcal · ' + self.proteinFor(k) + 'g protein' }; }),
           change: function (e) {
             var v = e.target.value || null;
