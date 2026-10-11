@@ -45,7 +45,9 @@ html, body { height: 100%; background: var(--ground); }
 #app { position: absolute; left: 50%; top: 0; width: 402px; transform-origin: top center; }
 #stage.desk #app { border-radius: 40px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.12); }
 #app > div { height: var(--app-h, 874px) !important; }
-#app nav { top: auto !important; bottom: calc(12px + var(--sb, 0px)); }
+#app nav { top: auto !important; bottom: calc(6px + var(--sb, 0px) * 0.45); transition: opacity .15s; }
+#app .nav-veil { height: calc(60px + var(--sb, 0px) * 0.45) !important; }
+#stage.typing #app nav, #stage.typing #app .nav-veil { opacity: 0; pointer-events: none; }
 #app .scroll > div[style*="padding: 63px 0 72px"] { padding-bottom: calc(100px + var(--sb, 0px)) !important; }
 </style>
 <style>html,body{margin:0;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}</style>
@@ -606,6 +608,7 @@ html, body { height: 100%; background: var(--ground); }
     </div>
   </template>
 
+  <div aria-hidden="true" class="nav-veil" style="position: absolute; left: 0; right: 0; bottom: 0; height: 75px; z-index: 19; pointer-events: none; background: rgba(255,255,255,0.6); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px)"></div>
   <nav aria-label="Main" style="position: absolute; left: 27px; top: 799px; width: 352px; height: 54px; box-sizing: border-box; z-index: 20; border-radius: 27px; background: rgba(255,255,255,0.5); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); box-shadow: 0 0 0 0.5px rgba(0,0,0,0.04), 0 2px 10px rgba(0,0,0,0.04)">
     <template data-sc="for" list="{{nav}}" as="n" hint-placeholder-count="4">
       <button onClick="{{n.go}}" aria-current="{{n.current}}" style="{{n.style}}">
@@ -662,7 +665,7 @@ html, body { height: 100%; background: var(--ground); }
             <div style="height: 1px; background: #8A8A8A"></div>
           </div>
         </template>
-        <div style="{{panelTotalStyle}}">Total <span style="{{panelTotalNum}}">{{panelTotal}}</span></div>
+        <div style="{{panelTotalStyle}}"><span style="{{panelTotalNum}}">{{panelTotal}}</span> kcal · <span style="font-weight: 700; color: #000000">{{panelProtein}}g</span> protein</div>
         <button onClick="{{cancelEdit}}" style="position: absolute; left: 154px; top: 432px; width: 67px; height: 23px; border: none; border-radius: 12px; background: #D9D9D9; font-size: 12px; font-weight: 400; color: #000000; padding: 0">Cancel</button>
         <button onClick="{{saveEdit}}" style="position: absolute; left: 228px; top: 432px; width: 68px; height: 23px; border: none; border-radius: 12px; background: #3D5CF6; font-size: 12px; font-weight: 400; color: #FFFFFF; padding: 0">Save</button>
       </div>
@@ -753,10 +756,13 @@ function DC_wrap(e, el) {
   } });
 }
 function DC_fire(type, e, el) { var fn = DC_handlers[+el.getAttribute('data-ev-' + type)]; if (fn) fn(DC_wrap(e, el)); }
-var DC_CROP = 44; // the design frame's own status-bar strip, hidden on a real phone
+var DC_CROP = 44, DC_lastW = 0, DC_maxH = 0; // the design frame's own status-bar strip, hidden on a real phone
 function DC_fit() {
   var stage = document.getElementById('stage'), app = document.getElementById('app');
   var W = window.innerWidth, H = window.innerHeight, s, h, top;
+  // the keyboard shrinks the window on iPhone: keep the full height so the menu stays put
+  if (W !== DC_lastW) { DC_lastW = W; DC_maxH = H; } else DC_maxH = Math.max(DC_maxH, H);
+  H = DC_maxH;
   var probe = document.getElementById('safe-probe');
   var sb = probe ? probe.offsetHeight : 0;
   if (W >= 600) { s = Math.min(1, (H - 32) / 874); h = 874; sb = 0; stage.classList.add('desk'); top = Math.max(16, (H - 874 * s) / 2); }
@@ -769,8 +775,12 @@ function DC_fit() {
 }
 function DC_MOUNT(C, props) {
   DC_inst = new C(props);
-  DC_fit(); window.addEventListener('resize', DC_fit); window.addEventListener('orientationchange', DC_fit); window.addEventListener('pageshow', DC_fit); if (window.visualViewport) window.visualViewport.addEventListener('resize', DC_fit); [100, 400, 1000].forEach(function (t) { setTimeout(DC_fit, t); });
+  DC_fit(); window.addEventListener('resize', DC_fit); window.addEventListener('orientationchange', DC_fit); window.addEventListener('pageshow', DC_fit); [100, 400, 1000].forEach(function (t) { setTimeout(DC_fit, t); });
   var app = document.getElementById('app');
+  var stageEl = document.getElementById('stage');
+  function typing(el) { return el && (el.localName === 'input' || el.localName === 'textarea' || el.localName === 'select'); }
+  document.addEventListener('focusin', function (e) { if (typing(e.target)) stageEl.classList.add('typing'); });
+  document.addEventListener('focusout', function () { setTimeout(function () { if (!typing(document.activeElement)) { stageEl.classList.remove('typing'); window.scrollTo(0, 0); } }, 50); });
   ['click', 'pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'change', 'input', 'wheel'].forEach(function (type) {
     app.addEventListener(type, function (e) {
       var t = e.target && e.target.closest ? e.target : e.target.parentElement;
@@ -798,19 +808,37 @@ class Component extends DCLogic {
     };
     this.CLOCHE = S.cloche;
     this.LIB = {
-      b1: { slot: 'breakfast', name: 'Greek Yoghurt & Berries', kcal: 215, p: 'dairy', c: 'global', t: 5, b: 'cafe', sk: [S.yoghurt] },
-      b2: { slot: 'breakfast', name: 'Avocado Toast & Poached Eggs', kcal: 320, p: 'eggs', c: 'global', t: 15, b: 'cafe', sk: [S.eggs] },
-      l1: { slot: 'lunch', name: 'Chicken Wrap', kcal: 375, p: 'chicken', c: 'global', t: 15, sk: [S.wrap] },
-      l2: { slot: 'lunch', name: 'Chickpea Salad Bowl', kcal: 320, p: 'veg', c: 'mediterranean', t: 10, sk: [S.nuts] },
-      l3: { slot: 'lunch', name: 'Soy Noodles & Veg', kcal: 275, p: 'veg', c: 'asian', t: 15, sk: [S.noodles] },
-      d1: { slot: 'dinner', name: 'Chicken Curry & Rice', kcal: 445, p: 'chicken', c: 'indian', t: 35, sk: [S.curry, S.rice] },
-      d2: { slot: 'dinner', name: 'Roast Chicken & Greens', kcal: 375, p: 'chicken', c: 'british', t: 40, sk: [S.chicken] },
-      d3: { slot: 'dinner', name: 'Baked Fish & Lemon', kcal: 310, p: 'fish', c: 'mediterranean', t: 25, sk: [S.fish] },
-      s1: { slot: 'snack', name: 'Fruit Plate', kcal: 85, p: 'fruit', c: 'any', t: 5, sk: [S.fruit] },
-      s2: { slot: 'snack', name: 'Roasted Chickpeas', kcal: 90, p: 'veg', c: 'any', t: 30, sk: [S.nuts] }
+      b1: { slot: 'breakfast', name: 'Greek Yoghurt & Berries', kcal: 215, pr: 19, p: 'dairy', c: 'global', t: 5, b: 'cafe', sk: [S.yoghurt] },
+      b3: { slot: 'breakfast', name: 'Smoked Salmon & Avocado Toast', kcal: 340, pr: 17, p: 'fish', c: 'global', t: 10, b: 'cafe', sk: [S.eggs] },
+      b4: { slot: 'breakfast', name: 'Overnight Oats & Banana', kcal: 300, pr: 12, p: 'dairy', c: 'global', t: 5, b: 'cafe', sk: [S.yoghurt] },
+      b2: { slot: 'breakfast', name: 'Avocado Toast & Poached Eggs', kcal: 320, pr: 13, p: 'eggs', c: 'global', t: 15, b: 'cafe', sk: [S.eggs] },
+      l1: { slot: 'lunch', name: 'Chicken Wrap', kcal: 375, pr: 39, p: 'chicken', c: 'global', t: 15, sk: [S.wrap] },
+      l2: { slot: 'lunch', name: 'Chickpea Salad Bowl', kcal: 320, pr: 14, p: 'veg', c: 'mediterranean', t: 10, sk: [S.nuts] },
+      l3: { slot: 'lunch', name: 'Soy Noodles & Veg', kcal: 275, pr: 6, p: 'veg', c: 'asian', t: 15, sk: [S.noodles] },
+      l4: { slot: 'lunch', name: 'Chicken Tikka Rice Bowl', kcal: 390, pr: 35, p: 'chicken', c: 'indian', t: 25, sk: [S.rice] },
+      d1: { slot: 'dinner', name: 'Chicken Curry & Rice', kcal: 445, pr: 41, p: 'chicken', c: 'indian', t: 35, sk: [S.curry, S.rice] },
+      d2: { slot: 'dinner', name: 'Roast Chicken & Greens', kcal: 375, pr: 30, p: 'chicken', c: 'british', t: 40, sk: [S.chicken] },
+      d3: { slot: 'dinner', name: 'Baked Fish & Lemon', kcal: 310, pr: 24, p: 'fish', c: 'mediterranean', t: 25, sk: [S.fish] },
+      d4: { slot: 'dinner', name: 'Dal, Spinach & Rice', kcal: 455, pr: 20, p: 'veg', c: 'indian', t: 35, sk: [S.curry, S.rice] },
+      s1: { slot: 'snack', name: 'Fruit Plate', kcal: 85, pr: 2, p: 'fruit', c: 'any', t: 5, sk: [S.fruit] },
+      s2: { slot: 'snack', name: 'Roasted Chickpeas', kcal: 90, pr: 4, p: 'veg', c: 'any', t: 30, sk: [S.nuts] },
+      s3: { slot: 'snack', name: 'Apple & Peanut Butter', kcal: 175, pr: 4, p: 'veg', c: 'any', t: 2, sk: [S.fruit] },
+      s4: { slot: 'snack', name: 'Greek Yoghurt & Honey', kcal: 170, pr: 17, p: 'dairy', c: 'any', t: 2, sk: [S.yoghurt] }
     };
     function I(q, k, n) { return { q: q, k: k, n: n }; }
     this.RECIPES = {
+      b3: { time: '10 min', ing: [I(2,'slice','Sourdough'), I(100,'g','Smoked salmon'), I(1,'whole','Ripe avocado'), I(0.5,'whole','Lemon'), I(null,'pinch','Fresh dill'), I(null,'taste','Black pepper')],
+        steps: ['Toast the sourdough.', 'Mash the avocado with lemon juice and pepper.', 'Spread the avocado on the toast.', 'Lay the salmon on top and finish with dill.'] },
+      b4: { time: '5 min', ing: [I(80,'g','Rolled oats'), I(300,'ml','Semi-skimmed milk'), I(1,'whole','Banana'), I(2,'tsp','Chia seeds'), I(null,'pinch','Cinnamon')],
+        steps: ['Stir the oats, milk, chia and cinnamon together in two jars.', 'Cover and chill overnight.', 'Slice the banana on top in the morning.'] },
+      l4: { time: '25 min', ing: [I(250,'g','Chicken breast'), I(2,'tbsp','Tikka paste'), I(4,'tbsp','Light Greek yoghurt'), I(100,'g','Basmati rice'), I(1,'whole','Red onion'), I(100,'g','Cucumber'), I(1,'whole','Lemon')],
+        steps: ['Mix the tikka paste with half the yoghurt and coat the chicken.', 'Cook the rice following the pack.', 'Grill or pan-fry the chicken for 10 to 12 minutes until cooked through.', 'Slice the onion and cucumber and toss with lemon juice.', 'Serve the chicken over the rice with the salad and the rest of the yoghurt.'] },
+      d4: { time: '35 min', ing: [I(120,'g','Red lentils'), I(1,'whole','Onion'), I(2,'whole','Garlic cloves'), I(1,'tsp','Cumin seeds'), I(0.5,'tsp','Turmeric'), I(200,'g','Chopped tomatoes'), I(100,'g','Spinach'), I(1,'tbsp','Olive oil'), I(80,'g','Basmati rice')],
+        steps: ['Rinse the lentils and simmer them with the turmeric in 600ml water for 20 minutes.', 'Cook the rice following the pack.', 'Fry the cumin, onion and garlic in the oil for 5 minutes.', 'Add the tomatoes and cook for 5 minutes, then stir into the lentils.', 'Wilt in the spinach and serve with the rice.'] },
+      s3: { time: '2 min', ing: [I(2,'whole','Apples'), I(2,'tbsp','Peanut butter')],
+        steps: ['Slice the apples.', 'Serve with the peanut butter for dipping.'] },
+      s4: { time: '2 min', ing: [I(300,'g','0% fat Greek yoghurt'), I(2,'tsp','Honey'), I(20,'g','Walnuts')],
+        steps: ['Spoon the yoghurt into bowls.', 'Drizzle with honey and scatter over the walnuts.'] },
       b1: { time: '5 min', ing: [I(340,'g','0% fat Greek yoghurt'), I(150,'g','Mixed berries'), I(30,'g','Granola'), I(2,'tsp','Honey')],
         steps: ['Spoon the yoghurt into bowls.', 'Scatter over the berries and granola.', 'Drizzle with honey and serve straight away.'] },
       b2: { time: '15 min', ing: [I(2,'slice','Sourdough'), I(1,'whole','Ripe avocado'), I(2,'whole','Eggs'), I(0.5,'whole','Lemon'), I(null,'pinch','Chilli flakes'), I(null,'taste','Salt and pepper')],
@@ -848,7 +876,7 @@ class Component extends DCLogic {
       edit: null, phase: null, draft: null,
       plan: {
         last: [d('b2','l3','d2','s1'), d('b1','l1','d3','s2'), d('b2','l2','d1','s1'), d('b1','l3','d2','s1'), d('b2','l1','d3','s2'), d('b1','l2','d1','s1'), d('b2','l1','d2','s2')],
-        this: [d('b1','l3','d1','s1'), d('b2','l3','d3','s2'), d('b1','l2','d2','s1'), d('b2','l2','d3','s1'), d('b1','l3','d1','s2'), d('b1','l1','d3','s1'), d('b1','l2','d2','s2')],
+        this: [d('b1','l4','d1','s1'), d('b4','l2','d1','s2'), d('b1','l1','d1','s1'), d('b3','l2','d3','s4'), d('b2','l1','d3','s2'), d('b1','l4','d3','s3'), d('b3','l2','d3','s4')],
         next: null
       }
     };
@@ -978,6 +1006,19 @@ class Component extends DCLogic {
   factor(who) {
     var t = who === 'p' ? ((this.calcPerson(this.state.partner) || {}).target || this.limit) : this.limit;
     return t / this.avgDay();
+  }
+  proteinFor(id, who) { var m = this.LIB[id]; return m ? Math.round(m.pr * this.factor(who)) : 0; }
+  strictIds(slot) {
+    var P = this.state.prefs || {}, L = this.LIB, pe = this.state.partner ? (this.state.partner.eat || {}) : null;
+    var eat = P.eat || {}, cu = (P.cuisineBy || {})[slot] || {};
+    var anyC = !Object.keys(cu).some(function (k) { return cu[k]; });
+    return Object.keys(L).filter(function (k) {
+      var m = L[k]; if (m.slot !== slot) return false;
+      var okP = ['veg', 'dairy', 'fruit'].indexOf(m.p) >= 0 || (!!eat[m.p] && (!pe || !!pe[m.p]));
+      var okC = anyC || m.c === 'any' || !!cu[m.c];
+      var okT = !P.time || m.t <= P.time;
+      return okP && okC && okT;
+    });
   }
   kcalFor(id, who) { var m = this.LIB[id]; return m ? Math.round(m.kcal * this.factor(who) / 5) * 5 : 0; }
   setMe(patch) {
@@ -1283,14 +1324,43 @@ class Component extends DCLogic {
       return out;
     }
     function bestFill() {
+      var goal = self.limit, prot = (self.calcPerson(st.me) || {}).protein || 0;
+      var batchCook = (st.prefs || {}).cook === 'batch';
+      function score(w) {
+        var e = 0, used = {};
+        w.forEach(function (dp, i) {
+          var k = 0, p = 0;
+          self.SLOTS.forEach(function (sl) { if (dp[sl]) { k += self.kcalFor(dp[sl]); p += self.proteinFor(dp[sl]); } });
+          var d = k - goal; e += d > 0 ? d * 15 : -d;
+          if (p < prot) e += (prot - p) * 8;
+          self.SLOTS.forEach(function (sl) {
+            if (sl === 'dinner' && batchCook) return;
+            used[dp[sl]] = (used[dp[sl]] || 0) + 1;
+            if (i > 0 && w[i - 1][sl] === dp[sl]) e += 400;
+          });
+        });
+        Object.keys(used).forEach(function (k) { if (used[k] > 2) e += (used[k] - 2) * 100; });
+        if (batchCook && w[0].dinner && w[0].dinner === w[3].dinner) e += 1000;
+        return e;
+      }
       var best = null, be = Infinity;
-      for (var n = 0; n < 40; n++) {
-        var c = fill('random');
-        var e = c.reduce(function (a, dp) {
-          var t = self.SLOTS.reduce(function (x, sl) { return x + (dp[sl] ? self.kcalFor(dp[sl]) : 0); }, 0);
-          var d = t - self.limit; return a + (d > 0 ? d * 3 : -d);
-        }, 0);
-        if (e < be) { be = e; best = c; }
+      for (var n = 0; n < 60; n++) { var c = fill('random'), e = score(c); if (e < be) { be = e; best = c; } }
+      // then improve it one swap at a time until no swap helps
+      var opts = {}; self.SLOTS.forEach(function (sl) { opts[sl] = self.allowedIds(sl); });
+      var better = true, guard = 0;
+      while (better && guard++ < 50) {
+        better = false;
+        for (var i = 0; i < 7; i++) {
+          self.SLOTS.forEach(function (sl) {
+            var group = (sl === 'dinner' && batchCook) ? (i < 3 ? [0, 1, 2] : [3, 4, 5, 6]) : [i];
+            opts[sl].forEach(function (id) {
+              if (best[i][sl] === id) return;
+              var trial = best.map(function (dp, j) { if (group.indexOf(j) < 0) return dp; var x = Object.assign({}, dp); x[sl] = id; return x; });
+              var e2 = score(trial);
+              if (e2 < be) { be = e2; best = trial; better = true; }
+            });
+          });
+        }
       }
       return best;
     }
@@ -1332,7 +1402,7 @@ class Component extends DCLogic {
     // ---------- Edit ----------
     var ed = st.edit, ph = st.phase;
     var editOn = !!ed;
-    var shadowWrap = '', cloneStyle = '', cardLayerStyle = '', panelLayerStyle = '', overlayStyle = '', cloneBlocks = [], panelRows = [], panelTitle = '', cloneTitle = '', panelTotal = 0, panelTotalStyle = '', panelTotalNum = '';
+    var shadowWrap = '', cloneStyle = '', cardLayerStyle = '', panelLayerStyle = '', overlayStyle = '', cloneBlocks = [], panelRows = [], panelTitle = '', cloneTitle = '', panelTotal = 0, panelProtein = 0, panelTotalStyle = '', panelTotalNum = '';
     if (ed) {
       var r = ed.rect, P = { l: 44, t: 205, w: 313, h: 474 };
       var sx = r.w / P.w, sy = r.h / P.h;
@@ -1352,6 +1422,7 @@ class Component extends DCLogic {
       cloneBlocks = this.blocksFor(st.plan[ed.week][ed.day]);
       var draft = st.draft || {};
       panelTotal = this.SLOTS.reduce(function (t, sl) { return t + (draft[sl] ? self.kcalFor(draft[sl]) : 0); }, 0);
+      panelProtein = this.SLOTS.reduce(function (t, sl) { return t + (draft[sl] ? self.proteinFor(draft[sl]) : 0); }, 0);
       panelTotalStyle = 'position: absolute; left: 32px; top: 432px; height: 23px; display: flex; align-items: center; gap: 4px; font-size: 12px; line-height: 15px; color: #5C5C5C;';
       panelTotalNum = 'font-size: 12px; font-weight: 700; color: ' + (panelTotal > this.limit ? '#E2552B' : '#000000') + ';';
       panelRows = this.SLOTS.map(function (slot, i) {
@@ -1360,7 +1431,7 @@ class Component extends DCLogic {
           label: self.SLOT_LABEL[slot].toUpperCase(),
           value: draft[slot] || '',
                     wrap: 'position: absolute; left: 32px; top: ' + (81.5 + 78 * i) + 'px; width: 255px;',
-          options: Object.keys(self.LIB).filter(function (k) { return self.LIB[k].slot === slot; }).map(function (k) { return { id: k, name: self.LIB[k].name + '  ·  ' + self.kcalFor(k) + ' kcal' }; }),
+          options: (function () { var ids = self.strictIds(slot); if (draft[slot] && ids.indexOf(draft[slot]) < 0) ids.push(draft[slot]); if (!ids.length) ids = self.allowedIds(slot); return ids; })().map(function (k) { return { id: k, name: self.LIB[k].name + '  ·  ' + self.kcalFor(k) + ' kcal · ' + self.proteinFor(k) + 'g protein' }; }),
           change: function (e) {
             var v = e.target.value || null;
             var nd = Object.assign({}, self.state.draft);
@@ -1684,7 +1755,7 @@ class Component extends DCLogic {
         self.setState({ plan: plan, methods: methods, planToast: null, fabOpen: false });
       },
       editOn: editOn, shadowWrap: shadowWrap, overlayStyle: overlayStyle, cloneStyle: cloneStyle, cardLayerStyle: cardLayerStyle, panelLayerStyle: panelLayerStyle,
-      cloneBlocks: cloneBlocks, cloneTitle: cloneTitle, panelTitle: panelTitle, panelRows: panelRows, panelTotal: panelTotal, panelTotalStyle: panelTotalStyle, panelTotalNum: panelTotalNum,
+      cloneBlocks: cloneBlocks, cloneTitle: cloneTitle, panelTitle: panelTitle, panelRows: panelRows, panelTotal: panelTotal, panelProtein: panelProtein, panelTotalStyle: panelTotalStyle, panelTotalNum: panelTotalNum,
       cancelEdit: function () { self.closeEdit(false); },
       saveEdit: function () { self.closeEdit(true); },
       nav: nav
@@ -1693,7 +1764,7 @@ class Component extends DCLogic {
 }
 
 (function () {
-  var KEY = 'cooked-v1', KEEP = ['eaten', 'extras', 'plan', 'methods', 'prefs', 'me', 'partner'];
+  var KEY = 'cooked-v3', KEEP = ['eaten', 'extras', 'plan', 'methods', 'prefs', 'me', 'partner'];
   var origMount = DC_MOUNT;
   DC_MOUNT = function (C, props) {
     var saved = null;
