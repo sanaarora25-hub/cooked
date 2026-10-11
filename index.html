@@ -608,8 +608,7 @@ html, body { height: 100%; background: var(--ground); }
     </div>
   </template>
 
-  <div aria-hidden="true" class="nav-veil" style="position: absolute; left: 0; right: 0; bottom: 0; height: 75px; z-index: 19; pointer-events: none; background: rgba(255,255,255,0.6); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px)"></div>
-  <nav aria-label="Main" style="position: absolute; left: 27px; top: 799px; width: 352px; height: 54px; box-sizing: border-box; z-index: 20; border-radius: 27px; background: rgba(255,255,255,0.5); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); box-shadow: 0 0 0 0.5px rgba(0,0,0,0.04), 0 2px 10px rgba(0,0,0,0.04)">
+  <nav aria-label="Main" style="position: absolute; left: 27px; top: 799px; width: 352px; height: 54px; box-sizing: border-box; z-index: 20; border-radius: 27px; background: rgba(255,255,255,0.8); -webkit-backdrop-filter: blur(18px) saturate(180%); backdrop-filter: blur(18px) saturate(180%); box-shadow: 0 0 0 0.5px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)">
     <template data-sc="for" list="{{nav}}" as="n" hint-placeholder-count="4">
       <button onClick="{{n.go}}" aria-current="{{n.current}}" style="{{n.style}}">
         <template data-sc="if" value="{{n.isToday}}" hint-placeholder-val="{{ false }}">
@@ -808,25 +807,43 @@ class Component extends DCLogic {
     };
     this.CLOCHE = S.cloche;
     this.LIB = {
-      b1: { slot: 'breakfast', name: 'Greek Yoghurt & Berries', kcal: 215, pr: 19, p: 'dairy', c: 'global', t: 5, b: 'cafe', sk: [S.yoghurt] },
-      b3: { slot: 'breakfast', name: 'Smoked Salmon & Avocado Toast', kcal: 340, pr: 17, p: 'fish', c: 'global', t: 10, b: 'cafe', sk: [S.eggs] },
-      b4: { slot: 'breakfast', name: 'Overnight Oats & Banana', kcal: 300, pr: 12, p: 'dairy', c: 'global', t: 5, b: 'cafe', sk: [S.yoghurt] },
-      b2: { slot: 'breakfast', name: 'Avocado Toast & Poached Eggs', kcal: 320, pr: 13, p: 'eggs', c: 'global', t: 15, b: 'cafe', sk: [S.eggs] },
-      l1: { slot: 'lunch', name: 'Chicken Wrap', kcal: 375, pr: 39, p: 'chicken', c: 'global', t: 15, sk: [S.wrap] },
+      b1: { slot: 'breakfast', name: 'Greek Yoghurt & Berries', kcal: 215, pr: 19, p: 'dairy', c: 'mediterranean', t: 5, b: 'cafe', sk: [S.yoghurt] },
+      b3: { slot: 'breakfast', name: 'Smoked Salmon & Avocado Toast', kcal: 340, pr: 17, p: 'fish', c: 'british', t: 10, b: 'cafe', sk: [S.eggs] },
+      b4: { slot: 'breakfast', name: 'Overnight Oats & Banana', kcal: 300, pr: 12, p: 'dairy', c: 'british', t: 5, b: 'cafe', sk: [S.yoghurt] },
+      b5: { slot: 'breakfast', name: 'Huevos Rancheros', kcal: 370, pr: 23, p: 'eggs', c: 'mexican', t: 20, b: 'cafe', sk: [S.eggs] },
+      b2: { slot: 'breakfast', name: 'Avocado Toast & Poached Eggs', kcal: 320, pr: 13, p: 'eggs', c: 'british', t: 15, b: 'cafe', sk: [S.eggs] },
+      l1: { slot: 'lunch', name: 'Chicken Wrap', kcal: 375, pr: 39, p: 'chicken', c: 'british', t: 15, sk: [S.wrap] },
       l2: { slot: 'lunch', name: 'Chickpea Salad Bowl', kcal: 320, pr: 14, p: 'veg', c: 'mediterranean', t: 10, sk: [S.nuts] },
       l3: { slot: 'lunch', name: 'Soy Noodles & Veg', kcal: 275, pr: 6, p: 'veg', c: 'asian', t: 15, sk: [S.noodles] },
       l4: { slot: 'lunch', name: 'Chicken Tikka Rice Bowl', kcal: 390, pr: 35, p: 'chicken', c: 'indian', t: 25, sk: [S.rice] },
+      l5: { slot: 'lunch', name: 'Chicken Burrito Bowl', kcal: 485, pr: 42, p: 'chicken', c: 'mexican', t: 25, sk: [S.rice] },
+      l6: { slot: 'lunch', name: 'Thai Chicken Noodle Salad', kcal: 435, pr: 38, p: 'chicken', c: 'thai', t: 15, sk: [S.noodles] },
       d1: { slot: 'dinner', name: 'Chicken Curry & Rice', kcal: 445, pr: 41, p: 'chicken', c: 'indian', t: 35, sk: [S.curry, S.rice] },
       d2: { slot: 'dinner', name: 'Roast Chicken & Greens', kcal: 375, pr: 30, p: 'chicken', c: 'british', t: 40, sk: [S.chicken] },
       d3: { slot: 'dinner', name: 'Baked Fish & Lemon', kcal: 310, pr: 24, p: 'fish', c: 'mediterranean', t: 25, sk: [S.fish] },
       d4: { slot: 'dinner', name: 'Dal, Spinach & Rice', kcal: 455, pr: 20, p: 'veg', c: 'indian', t: 35, sk: [S.curry, S.rice] },
+      d5: { slot: 'dinner', name: 'Chicken Fajitas', kcal: 515, pr: 45, p: 'chicken', c: 'mexican', t: 25, sk: [S.wrap] },
+      d6: { slot: 'dinner', name: 'Thai Green Chicken Curry', kcal: 470, pr: 41, p: 'chicken', c: 'thai', t: 30, sk: [S.curry, S.rice] },
       s1: { slot: 'snack', name: 'Fruit Plate', kcal: 85, pr: 2, p: 'fruit', c: 'any', t: 5, sk: [S.fruit] },
       s2: { slot: 'snack', name: 'Roasted Chickpeas', kcal: 90, pr: 4, p: 'veg', c: 'any', t: 30, sk: [S.nuts] },
       s3: { slot: 'snack', name: 'Apple & Peanut Butter', kcal: 175, pr: 4, p: 'veg', c: 'any', t: 2, sk: [S.fruit] },
+      s5: { slot: 'snack', name: 'Salsa & Veg Sticks', kcal: 85, pr: 2, p: 'veg', c: 'any', t: 5, sk: [S.fruit] },
       s4: { slot: 'snack', name: 'Greek Yoghurt & Honey', kcal: 170, pr: 17, p: 'dairy', c: 'any', t: 2, sk: [S.yoghurt] }
     };
     function I(q, k, n) { return { q: q, k: k, n: n }; }
     this.RECIPES = {
+      b5: { time: '20 min', ing: [I(4,'whole','Eggs'), I(200,'g','Black beans, drained'), I(200,'g','Chopped tomatoes'), I(0.5,'whole','Onion'), I(2,'whole','Small corn tortillas'), I(1,'tsp','Olive oil'), I(null,'pinch','Chilli flakes'), I(null,'taste','Fresh coriander')],
+        steps: ['Soften the onion in the oil for 5 minutes.', 'Add the tomatoes, beans and chilli and simmer for 5 minutes.', 'Make four wells and crack in the eggs.', 'Cover and cook for 5 to 6 minutes until the whites set.', 'Warm the tortillas and serve with coriander.'] },
+      l5: { time: '25 min', ing: [I(250,'g','Chicken breast'), I(70,'g','Basmati rice'), I(200,'g','Black beans, drained'), I(100,'g','Sweetcorn'), I(1,'whole','Tomato'), I(0.5,'whole','Red onion'), I(0.5,'whole','Ripe avocado'), I(1,'whole','Lime'), I(1,'tsp','Smoked paprika'), I(1,'tsp','Ground cumin')],
+        steps: ['Cook the rice following the pack.', 'Rub the chicken with paprika and cumin and pan-fry for 10 to 12 minutes.', 'Warm the beans and sweetcorn.', 'Dice the tomato, onion and avocado and toss with lime juice.', 'Slice the chicken and build the bowls.'] },
+      l6: { time: '15 min', ing: [I(200,'g','Cooked chicken breast'), I(100,'g','Rice noodles'), I(1,'whole','Carrot'), I(0.5,'whole','Cucumber'), I(1,'whole','Red pepper'), I(2,'tbsp','Lime juice'), I(1,'tbsp','Fish sauce'), I(1,'tsp','Honey'), I(15,'g','Peanuts'), I(null,'taste','Mint and coriander')],
+        steps: ['Soak the noodles in boiling water for 5 minutes, then rinse in cold water.', 'Cut the carrot, cucumber and pepper into thin strips.', 'Whisk the lime juice, fish sauce and honey.', 'Toss everything with the shredded chicken and herbs.', 'Scatter over the chopped peanuts.'] },
+      d5: { time: '25 min', ing: [I(300,'g','Chicken breast'), I(2,'whole','Peppers'), I(1,'whole','Onion'), I(1,'tbsp','Olive oil'), I(2,'tsp','Fajita seasoning'), I(4,'whole','Small wholemeal tortillas'), I(4,'tbsp','Light Greek yoghurt'), I(null,'taste','Salsa')],
+        steps: ['Slice the chicken, peppers and onion.', 'Toss with the oil and fajita seasoning.', 'Cook in a hot pan for 10 to 12 minutes until the chicken is done.', 'Warm the tortillas.', 'Fill with the chicken, yoghurt and salsa.'] },
+      d6: { time: '30 min', ing: [I(300,'g','Chicken breast'), I(2,'tbsp','Green curry paste'), I(200,'ml','Light coconut milk'), I(150,'g','Green beans'), I(1,'whole','Red pepper'), I(100,'g','Basmati rice'), I(1,'tsp','Fish sauce'), I(1,'whole','Lime'), I(null,'taste','Thai basil')],
+        steps: ['Cook the rice following the pack.', 'Fry the curry paste for 1 minute.', 'Add the sliced chicken and cook for 5 minutes.', 'Pour in the coconut milk, add the beans and pepper and simmer for 10 minutes.', 'Finish with fish sauce, lime and basil and serve over the rice.'] },
+      s5: { time: '5 min', ing: [I(2,'whole','Carrots'), I(1,'whole','Cucumber'), I(1,'whole','Red pepper'), I(150,'g','Fresh salsa')],
+        steps: ['Cut the vegetables into sticks.', 'Serve with the salsa for dipping.'] },
       b3: { time: '10 min', ing: [I(2,'slice','Sourdough'), I(100,'g','Smoked salmon'), I(1,'whole','Ripe avocado'), I(0.5,'whole','Lemon'), I(null,'pinch','Fresh dill'), I(null,'taste','Black pepper')],
         steps: ['Toast the sourdough.', 'Mash the avocado with lemon juice and pepper.', 'Spread the avocado on the toast.', 'Lay the salmon on top and finish with dill.'] },
       b4: { time: '5 min', ing: [I(80,'g','Rolled oats'), I(300,'ml','Semi-skimmed milk'), I(1,'whole','Banana'), I(2,'tsp','Chia seeds'), I(null,'pinch','Cinnamon')],
@@ -872,11 +889,11 @@ class Component extends DCLogic {
     this.limit = this.calcPerson(me0).target;
     this.state = {
       tab: 'today', week: 'this', eaten: {}, dragId: null, dx: 0, nudge: 0, showHint: false, shownLeft: this.limit, toast: null, sel: 0, me: me0,
-      prefs: { eat: { chicken: true, fish: true, eggs: true }, cuisineBy: { breakfast: { global: true }, lunch: { global: true, mediterranean: true, indian: true }, dinner: { indian: true, mediterranean: true, global: true } }, cook: 'batch', time: 45, noPackaged: true },
+      prefs: { eat: { chicken: true, fish: true, eggs: true }, cuisineBy: { breakfast: { british: true, mediterranean: true, mexican: true }, lunch: { british: true, mediterranean: true, indian: true, mexican: true, thai: true }, dinner: { indian: true, mexican: true, thai: true, mediterranean: true } }, cook: 'batch', time: 45, noPackaged: true },
       edit: null, phase: null, draft: null,
       plan: {
         last: [d('b2','l3','d2','s1'), d('b1','l1','d3','s2'), d('b2','l2','d1','s1'), d('b1','l3','d2','s1'), d('b2','l1','d3','s2'), d('b1','l2','d1','s1'), d('b2','l1','d2','s2')],
-        this: [d('b1','l4','d1','s1'), d('b4','l2','d1','s2'), d('b1','l1','d1','s1'), d('b3','l2','d3','s4'), d('b2','l1','d3','s2'), d('b1','l4','d3','s3'), d('b3','l2','d3','s4')],
+        this: [d('b3','l5','d3','s5'), d('b5','l6','d3','s2'), d('b3','l4','d3','s3'), d('b1','l1','d1','s4'), d('b4','l4','d1','s2'), d('b5','l2','d1','s1'), d('b1','l1','d1','s3')],
         next: null
       }
     };
@@ -1515,7 +1532,7 @@ class Component extends DCLogic {
       eatChips: multiChips('eat', [['chicken', 'Chicken'], ['fish', 'Fish'], ['eggs', 'Eggs'], ['paneer', 'Paneer'], ['lamb', 'Lamb'], ['pork', 'Pork'], ['beef', 'Beef']]),
       cuisineCols: [['breakfast', 'Breakfast'], ['lunch', 'Lunch'], ['dinner', 'Dinner']].map(function (sl) {
         var cur = ((st.prefs || {}).cuisineBy || {})[sl[0]] || {};
-        return { title: sl[1], aria: sl[1] + ' cuisines', items: [['indian', 'Indian'], ['mediterranean', 'Mediterranean'], ['global', 'Global'], ['asian', 'Asian'], ['british', 'British']].map(function (o) {
+        return { title: sl[1], aria: sl[1] + ' cuisines', items: [['indian', 'Indian'], ['mediterranean', 'Mediterranean'], ['british', 'British'], ['mexican', 'Mexican'], ['thai', 'Thai'], ['asian', 'Asian']].map(function (o) {
           var on = !!cur[o[0]];
           return { label: o[1], pressed: on ? 'true' : 'false', on: on,
             circle: 'flex-shrink: 0; width: 15px; height: 15px; border-radius: 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: center;' + (on ? ' background: #3D5CF6;' : ' border: 1px solid #8D8776;'),
@@ -1764,7 +1781,7 @@ class Component extends DCLogic {
 }
 
 (function () {
-  var KEY = 'cooked-v3', KEEP = ['eaten', 'extras', 'plan', 'methods', 'prefs', 'me', 'partner'];
+  var KEY = 'cooked-v4', KEEP = ['eaten', 'extras', 'plan', 'methods', 'prefs', 'me', 'partner'];
   var origMount = DC_MOUNT;
   DC_MOUNT = function (C, props) {
     var saved = null;
