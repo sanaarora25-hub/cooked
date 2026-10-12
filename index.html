@@ -894,6 +894,9 @@ class Component extends DCLogic {
     this.SLOTS = ['breakfast', 'lunch', 'dinner', 'snack'];
     this.SLOT_LABEL = { breakfast: 'Breakfast', lunch: 'Lunch', dinner: 'Dinner', snack: 'Snack' };
     this.WEEKS = ['last', 'this', 'next'];
+    var now0 = new Date(); this.TD = now0.getDay();
+    this.WS = new Date(now0.getFullYear(), now0.getMonth(), now0.getDate() - this.TD);
+    this.MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     this.WEEK_META = { last: { start: 4, label: 'Last week' }, this: { start: 11, label: 'This week' }, next: { start: 18, label: 'Next week' } };
     this.DAY_SHORT = ['SUN', 'MON', 'TUES', 'WED', 'THURS', 'FRI', 'SAT'];
     this.DAY_FULL = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
@@ -902,7 +905,7 @@ class Component extends DCLogic {
     var me0 = { sex: 'f', age: 28, height: 160, weight: 64, activity: 'feet', goal: 'deficit', adj: 0 };
     this.limit = this.calcPerson(me0).target;
     this.state = {
-      tab: 'today', week: 'this', eaten: {}, dragId: null, dx: 0, nudge: 0, showHint: false, shownLeft: this.limit, toast: null, sel: 0, me: me0, introOn: !(typeof window !== 'undefined' && window.COOKOO_NO_INTRO),
+      tab: 'today', week: 'this', eaten: {}, dragId: null, dx: 0, nudge: 0, showHint: false, shownLeft: this.limit, toast: null, sel: this.TD, me: me0, introOn: !(typeof window !== 'undefined' && window.COOKOO_NO_INTRO),
       prefs: { eat: { chicken: true, fish: true, eggs: true }, cuisineBy: { breakfast: { british: true, mediterranean: true, mexican: true }, lunch: { british: true, mediterranean: true, indian: true, mexican: true, thai: true }, dinner: { indian: true, mexican: true, thai: true, mediterranean: true } }, cook: 'batch', time: 45, noPackaged: true },
       edit: null, phase: null, draft: null,
       plan: {
@@ -926,6 +929,9 @@ class Component extends DCLogic {
     if (this.raf) cancelAnimationFrame(this.raf);
   }
   copy(o) { return JSON.parse(JSON.stringify(o)); }
+  dayDate(wk, i) { var o = wk === 'last' ? -7 : (wk === 'next' ? 7 : 0); return new Date(this.WS.getFullYear(), this.WS.getMonth(), this.WS.getDate() + o + i); }
+  dayText(wk, i, upper) { var d = this.dayDate(wk, i), m = this.MONTHS[d.getMonth()]; return d.getDate() + ' ' + (upper ? m.toUpperCase() : m); }
+  rangeFor(wk) { var a = this.dayDate(wk, 0), b = this.dayDate(wk, 6), ma = this.MONTHS[a.getMonth()].slice(0, 3), mb = this.MONTHS[b.getMonth()].slice(0, 3); return ma === mb ? a.getDate() + '-' + b.getDate() + ' ' + ma : a.getDate() + ' ' + ma + ' - ' + b.getDate() + ' ' + mb; }
   wheelFor(key) {
     var self = this;
     return function (e) {
@@ -1080,7 +1086,7 @@ class Component extends DCLogic {
   }
   leftFor(eaten, plan, extras) {
     var total = 0;
-    this.todayMeals(plan, 0, extras).forEach(function (m) { if (eaten[m.id]) total += m.kcal; });
+    this.todayMeals(plan, this.TD, extras).forEach(function (m) { if (eaten[m.id]) total += m.kcal; });
     return this.limit - total;
   }
   addExtra(name, kcal) {
@@ -1089,9 +1095,9 @@ class Component extends DCLogic {
     var id = 'x' + Date.now();
     var day = this.state.sel || 0;
     var extras = prevX.concat([{ id: id, name: name, kcal: kcal, day: day }]);
-    var eaten = Object.assign({}, prevE); if (day === 0) eaten[id] = true;
+    var eaten = Object.assign({}, prevE); if (day === this.TD) eaten[id] = true;
     clearTimeout(this.tt); clearTimeout(this.sh);
-    this.setState({ extras: extras, eaten: eaten, sheetPhase: 'closing', toast: { text: name + (day === 0 ? ' added' : ' added to ' + ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]), prev: prevE, prevExtras: prevX } });
+    this.setState({ extras: extras, eaten: eaten, sheetPhase: 'closing', toast: { text: name + (day === this.TD ? ' added' : ' added to ' + ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]), prev: prevE, prevExtras: prevX } });
     this.animateTo(this.leftFor(eaten, null, extras));
     this.sh = setTimeout(function () { self.setState({ sheetPhase: null }); }, 320);
     this.tt = setTimeout(function () { self.setState({ toast: null }); }, 4000);
@@ -1155,7 +1161,7 @@ class Component extends DCLogic {
       upd.plan = plan;
     }
     this.setState(upd, function () {
-      if (save && ed.week === 'this' && ed.day === 0) self.animateTo(self.leftFor(self.state.eaten));
+      if (save && ed.week === 'this' && ed.day === self.TD) self.animateTo(self.leftFor(self.state.eaten));
     });
     this.e3 = setTimeout(function () { self.setState({ edit: null, phase: null, draft: null }); }, 380);
   }
@@ -1180,7 +1186,7 @@ class Component extends DCLogic {
     var W = this.W, TH = this.TH;
 
     // ---------- Today ----------
-    var canTick = st.sel === 0;
+    var canTick = st.sel === this.TD;
     var rsz = this.props.recipeSketchSize != null ? this.props.recipeSketchSize : 130;
     var viewEaten = canTick ? st.eaten : {};
     var tMeals = this.todayMeals(null, st.sel);
@@ -1268,8 +1274,9 @@ class Component extends DCLogic {
     var fullD = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     var days = shortD.map(function (s, i) {
       var sel = i === st.sel;
-      return { short: s, num: 11 + i, full: fullD[i] + ' ' + (11 + i) + ' October' + (i === 0 ? ', today' : ''),
-        isToday: i === 0, pressed: sel ? 'true' : 'false',
+      var dd = self.dayDate('this', i);
+      return { short: s, num: dd.getDate(), full: fullD[i] + ' ' + self.dayText('this', i) + (i === self.TD ? ', today' : ''),
+        isToday: i === self.TD, pressed: sel ? 'true' : 'false',
         pick: function () { self.d = null; self.setState({ focusId: null, sel: i, toast: null, showHint: false, dragId: null, dx: 0, nudge: 0 }); },
         style: 'position: relative; justify-self: center; width: 48px; height: 55px; border: none; border-radius: 10px; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #000000; background: ' + (sel ? '#F9DB82' : 'transparent') + ';' };
     });
@@ -1331,10 +1338,10 @@ class Component extends DCLogic {
     var grey = wk !== 'this';
     var cards = weekPlan ? weekPlan.map(function (dp, i) {
       return {
-        title: self.DAY_SHORT[i] + ' ' + (meta.start + i),
-        aria: (wk === 'last' ? '' : 'Edit ') + self.DAY_FULL[i].toLowerCase() + ' ' + (meta.start + i) + ': ' + self.SLOTS.map(function (sl) { return dp[sl] ? self.LIB[dp[sl]].name : 'nothing for ' + sl; }).join(', '),
+        title: self.DAY_SHORT[i] + ' ' + self.dayDate(wk, i).getDate(),
+        aria: (wk === 'last' ? '' : 'Edit ') + self.DAY_FULL[i].toLowerCase() + ' ' + self.dayText(wk, i) + ': ' + self.SLOTS.map(function (sl) { return dp[sl] ? self.LIB[dp[sl]].name : 'nothing for ' + sl; }).join(', '),
         blocks: self.blocksFor(dp),
-        readOnly: wk === 'last', editable: wk !== 'last', isToday: wk === 'this' && i === 0,
+        readOnly: wk === 'last', editable: wk !== 'last', isToday: wk === 'this' && i === self.TD,
         style: 'position: relative; width: 173px; height: 173px; box-sizing: border-box; padding: 10px 10px 0; border: none; border-radius: 3px; background: #FFFFFF; box-shadow: 0 1px 5px rgba(0,0,0,0.13); text-align: left; display: block; cursor: ' + (wk === 'last' ? 'default' : 'pointer') + ';',
         open: function () { if (Date.now() - (self.lastPlanDrag || 0) < 350) return; if (wk !== 'last') self.openEdit(wk, i); }
       };
@@ -1420,7 +1427,7 @@ class Component extends DCLogic {
     function doRepeat() { setWeek(self.copy(st.plan[self.WEEKS[wi - 1]] || fill('empty')), 'Repeated last week', 'repeat'); }
     function doMyself() { setWeek(fill('empty'), 'Empty week ready to fill', 'myself'); }
     function doForMe() { setWeek(bestFill(), 'Week planned for you', 'forme'); }
-    var TODAY = 0;
+    var TODAY = self.TD;
     function replanRest(kind, text) {
       var src = st.plan[wk];
       var lastW = st.plan[self.WEEKS[wi - 1]];
@@ -1458,9 +1465,9 @@ class Component extends DCLogic {
       cardLayerStyle = 'position: absolute; left: 0; top: 0; width: 173px; height: 173px; box-sizing: border-box; padding: 10px 10px 0; transform-origin: 0 0; transform: scale(' + (1 / sx) + ', ' + (1 / sy) + '); opacity: ' + (showCard ? 1 : 0) + '; transition: opacity ' + (showCard ? '.18s .14s' : '.12s') + ';';
       panelLayerStyle = 'position: absolute; left: 0; top: 0; width: 313px; height: 474px; color: #000000; opacity: ' + (ph === 'open' ? 1 : 0) + '; transition: opacity ' + (ph === 'open' ? '.24s .22s' : '.1s') + '; pointer-events: ' + (ph === 'open' ? 'auto' : 'none') + ';';
       overlayStyle = 'position: absolute; inset: 0; z-index: 40; background: rgba(229,229,229,0.82); opacity: ' + (ph === 'lift' || ph === 'open' ? 1 : 0) + '; transition: opacity ' + (ph === 'closing' ? '.3s' : '.22s') + ' ease;';
-      var startN = this.WEEK_META[ed.week].start + ed.day;
+      var startN = this.dayDate(ed.week, ed.day).getDate();
       cloneTitle = this.DAY_SHORT[ed.day] + ' ' + startN;
-      panelTitle = this.DAY_FULL[ed.day] + ', ' + startN + ' OCTOBER';
+      panelTitle = this.DAY_FULL[ed.day] + ', ' + this.dayText(ed.week, ed.day, true);
       cloneBlocks = this.blocksFor(st.plan[ed.week][ed.day]);
       var draft = st.draft || {};
       panelTotal = this.SLOTS.reduce(function (t, sl) { return t + (draft[sl] ? self.kcalFor(draft[sl]) : 0); }, 0);
@@ -1685,7 +1692,7 @@ class Component extends DCLogic {
           toggle: function () { var d = Object.assign({}, self.state.stepDone); d[i] = !d[i]; self.setState({ stepDone: d }); }
         };
       }) : [],
-      dateText: this.DAY_FULL[st.sel] + ', ' + (11 + st.sel) + ' OCTOBER',
+      dateText: this.DAY_FULL[st.sel] + ', ' + this.dayText('this', st.sel, true),
       toastOn: !!st.toast, todayToastOn: !!st.toast && st.tab === 'today', toastText: st.toast ? st.toast.text : '',
       undo: function () {
         if (!st.toast) return;
@@ -1721,8 +1728,8 @@ class Component extends DCLogic {
       barRangeStyle: 'font-size: 17px; font-weight: 600; line-height: 22px; color: ' + (grey ? '#8A8A8A' : '#000000') + ';',
       barLabelStyle: 'font-size: 11px; font-weight: 400; line-height: 14px; color: ' + (grey ? '#8A8A8A' : '#5C5C5C') + ';',
       barTitleStyle: 'display: flex; flex-direction: column; align-items: center;',
-      dateShort: this.DAY_FULL[st.sel].charAt(0) + this.DAY_FULL[st.sel].slice(1).toLowerCase() + ', ' + (11 + st.sel) + ' Oct',
-      rangeText: meta.start + '-' + (meta.start + 6) + ' Oct',
+      dateShort: this.DAY_FULL[st.sel].charAt(0) + this.DAY_FULL[st.sel].slice(1).toLowerCase() + ', ' + this.dayDate('this', st.sel).getDate() + ' ' + this.MONTHS[this.dayDate('this', st.sel).getMonth()].slice(0, 3),
+      rangeText: this.rangeFor(wk),
       weekLabel: meta.label,
       rangeStyle: 'position: absolute; left: 0; right: 0; top: 125px; text-align: center; font-size: 30px; font-weight: 400; line-height: 36px; color: ' + (grey ? '#8A8A8A' : '#000000') + ';',
       weekLabelStyle: 'position: absolute; left: 0; right: 0; top: 160px; text-align: center; font-size: 15px; font-weight: 400; line-height: 19px; color: ' + (grey ? '#8A8A8A' : '#000000') + ';',
@@ -1811,6 +1818,7 @@ class Component extends DCLogic {
 
 (function () {
   var KEY = 'cooked-v4', KEEP = ['eaten', 'extras', 'plan', 'methods', 'prefs', 'me', 'partner'];
+  function ymd(d) { return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
   var origMount = DC_MOUNT;
   DC_MOUNT = function (C, props) {
     var saved = null;
@@ -1819,7 +1827,7 @@ class Component extends DCLogic {
     DC_render = function () {
       origRender();
       clearTimeout(t);
-      t = setTimeout(function () { try { var o = {}; KEEP.forEach(function (k) { if (DC_inst.state[k] !== undefined) o[k] = DC_inst.state[k]; }); localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }, 400);
+      t = setTimeout(function () { try { var o = {}; KEEP.forEach(function (k) { if (DC_inst.state[k] !== undefined) o[k] = DC_inst.state[k]; }); o.day = ymd(new Date()); o.ws = DC_inst.WS ? DC_inst.WS.getTime() : null; localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }, 400);
     };
     if (saved) {
       var P = C;
@@ -1827,6 +1835,16 @@ class Component extends DCLogic {
         var inst = new P(p);
         KEEP.forEach(function (k) { if (saved[k] !== undefined) inst.state[k] = saved[k]; });
         try {
+          // New day: ticks belong to the day they were made
+          if (saved.day !== ymd(new Date())) inst.state.eaten = {};
+          // New week: move the plans along
+          var weeks = saved.ws ? Math.round((inst.WS.getTime() - saved.ws) / 604800000) : 0;
+          if (weeks > 0 && saved.plan) {
+            var old = saved.plan, nxt = old.next || old['this'];
+            inst.state.plan = { last: weeks === 1 ? old['this'] : nxt, 'this': inst.copy(nxt), next: null };
+            if (saved.methods && typeof saved.methods === 'object') inst.state.methods = { last: weeks === 1 ? saved.methods['this'] : saved.methods.next, 'this': saved.methods.next, next: null };
+            inst.state.extras = []; inst.state.eaten = {};
+          }
           if (inst.state.me) inst.limit = inst.calcPerson(inst.state.me).target;
           var left = inst.leftFor(inst.state.eaten || {});
           inst.state.shownLeft = left; inst.state.shownConsumed = inst.limit - left;
