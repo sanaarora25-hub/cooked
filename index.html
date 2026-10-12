@@ -1961,7 +1961,11 @@ class Component extends DCLogic {
 DC_MOUNT(Component, {"recipeSketchSize": 130});
 </script>
 
-<div aria-hidden="true" style="position:fixed;left:0;right:0;top:0;height:calc(env(safe-area-inset-top,0px) + 1px);background:#FFFFFF;z-index:9999;pointer-events:none"></div>
-<div aria-hidden="true" style="position:fixed;left:0;right:0;bottom:0;height:env(safe-area-inset-bottom,0px);background:#FFFFFF;z-index:9998;pointer-events:none"></div>
+<script>
+(function(){var m=document.querySelector('meta[name="theme-color"]'),last='';
+var cv=document.createElement('div');cv.id='sb-cover';cv.style.cssText='position:fixed;left:0;right:0;top:0;height:calc(env(safe-area-inset-top,0px) + 2px);z-index:9999;pointer-events:none;transition:background .3s';document.body.appendChild(cv);
+function sync(){var c=document.querySelector('#app .ck-intro')?'#3D5CF6':'#FFFFFF';if(c!==last){last=c;m.setAttribute('content',c);document.documentElement.style.background=c;document.body.style.background=c;cv.style.background=c;}}
+new MutationObserver(sync).observe(document.getElementById('app'),{childList:true,subtree:true});sync();setTimeout(sync,7000);})();
+</script>
 </body>
 </html>
