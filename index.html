@@ -1961,5 +1961,10 @@ class Component extends DCLogic {
 DC_MOUNT(Component, {"recipeSketchSize": 130});
 </script>
 
+<script>
+(function(){var m=document.querySelector('meta[name="theme-color"]'),last='';
+function sync(){var c=document.querySelector('#app .ck-intro')?'#3D5CF6':'#FFFFFF';if(c!==last){last=c;m.setAttribute('content',c);document.documentElement.style.background=c;}}
+new MutationObserver(sync).observe(document.getElementById('app'),{childList:true,subtree:true});sync();setTimeout(sync,7000);})();
+</script>
 </body>
 </html>
