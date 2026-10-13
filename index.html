@@ -1437,46 +1437,68 @@ class Component extends DCLogic {
       }
       return out;
     }
-    function bestFill() {
+    function bestFill(fixed) {
+      // fixed: optional array of 7; a day that is set is kept as is (days already lived)
+      fixed = fixed || [];
       var goal = self.limit, prot = (self.calcPerson(st.me) || {}).protein || 0;
       var batchCook = (st.prefs || {}).cook === 'batch';
+      var lastW = st.plan && st.plan.last ? st.plan.last : [];
+      var lastUse = {}; lastW.forEach(function (dp) { self.SLOTS.forEach(function (sl) { if (dp && dp[sl]) lastUse[dp[sl]] = (lastUse[dp[sl]] || 0) + 1; }); });
+      function isFixed(i) { return !!fixed[i]; }
       function score(w) {
         var e = 0, used = {};
         w.forEach(function (dp, i) {
           var k = 0, p = 0;
           self.SLOTS.forEach(function (sl) { if (dp[sl]) { k += self.kcalFor(dp[sl]); p += self.proteinFor(dp[sl]); } });
-          var d = k - goal; e += d > 0 ? d * 15 : -d;
-          if (p < prot) e += (prot - p) * 8;
+          var d = k - goal; e += d > 0 ? d * 3 : -d * 2;          // close to the goal, a little stricter when over
+          if (p < prot) e += (prot - p) * 6;                       // enough protein
           self.SLOTS.forEach(function (sl) {
-            if (sl === 'dinner' && batchCook) return;
-            used[dp[sl]] = (used[dp[sl]] || 0) + 1;
-            if (i > 0 && w[i - 1][sl] === dp[sl]) e += 400;
+            var id = dp[sl]; if (!id) return;
+            used[id] = (used[id] || 0) + 1;
+            if (i > 0 && w[i - 1][sl] === id && !(sl === 'dinner' && batchCook)) e += 400;   // not the same thing two days running
+            e += (lastUse[id] || 0) * 25;                          // lean away from last week's meals
           });
         });
-        Object.keys(used).forEach(function (k) { if (used[k] > 2) e += (used[k] - 2) * 100; });
-        if (batchCook && w[0].dinner && w[0].dinner === w[3].dinner) e += 1000;
+        Object.keys(used).forEach(function (id) {
+          var m = self.LIB[id], n = used[id];
+          var cap = (m && m.slot === 'dinner') ? (batchCook ? 4 : 2) : 2;
+          if (n > cap) e += (n - cap) * 300;                       // spread meals across the week
+        });
+        if (batchCook) {
+          var da = w[1].dinner, db = w[4].dinner;
+          if (da && da === db) e += 1500;                          // two different batch dinners
+          [da, db].forEach(function (id) { var m = self.LIB[id]; if (m && m.p === 'fish') e += 600; });  // fish doesn't keep well for 3-4 days
+        }
         return e;
       }
-      var best = null, be = Infinity;
-      for (var n = 0; n < 60; n++) { var c = fill('random'), e = score(c); if (e < be) { be = e; best = c; } }
-      // then improve it one swap at a time until no swap helps
+      function apply(w) { return w.map(function (dp, i) { return isFixed(i) ? fixed[i] : dp; }); }
       var opts = {}; self.SLOTS.forEach(function (sl) { opts[sl] = self.allowedIds(sl); });
-      var better = true, guard = 0;
-      while (better && guard++ < 50) {
-        better = false;
-        for (var i = 0; i < 7; i++) {
-          self.SLOTS.forEach(function (sl) {
-            var group = (sl === 'dinner' && batchCook) ? (i < 3 ? [0, 1, 2] : [3, 4, 5, 6]) : [i];
-            opts[sl].forEach(function (id) {
-              if (best[i][sl] === id) return;
-              var trial = best.map(function (dp, j) { if (group.indexOf(j) < 0) return dp; var x = Object.assign({}, dp); x[sl] = id; return x; });
-              var e2 = score(trial);
-              if (e2 < be) { be = e2; best = trial; better = true; }
+      function climb(start) {
+        var best = start, be = score(best), better = true, guard = 0;
+        while (better && guard++ < 40) {
+          better = false;
+          for (var i = 0; i < 7; i++) {
+            if (isFixed(i)) continue;
+            self.SLOTS.forEach(function (sl) {
+              var group = (sl === 'dinner' && batchCook) ? (i < 3 ? [0, 1, 2] : [3, 4, 5, 6]) : [i];
+              group = group.filter(function (j) { return !isFixed(j); });
+              opts[sl].forEach(function (id) {
+                if (best[i][sl] === id) return;
+                var trial = best.map(function (dp, j) { if (group.indexOf(j) < 0) return dp; var x = Object.assign({}, dp); x[sl] = id; return x; });
+                var e2 = score(trial);
+                if (e2 < be) { be = e2; best = trial; better = true; }
+              });
             });
-          });
+          }
         }
+        return { w: best, e: be };
       }
-      return best;
+      // several random starts, each improved; then pick at random among the good ones so re-plans differ
+      var runs = [];
+      for (var n = 0; n < 8; n++) runs.push(climb(apply(fill('random'))));
+      runs.sort(function (x, y) { return x.e - y.e; });
+      var good = runs.filter(function (r) { return r.e <= runs[0].e * 1.08 + 40; });
+      return good[Math.floor(Math.random() * good.length)].w;
     }
     function setWeek(arr, text, method) {
       var plan = self.copy(st.plan);
@@ -1504,7 +1526,7 @@ class Component extends DCLogic {
       var src = st.plan[wk];
       var lastW = st.plan[self.WEEKS[wi - 1]];
       var todayIdx = wk === 'this' ? TODAY : -1;
-      var rand = bestFill();
+      var rand = bestFill(wk === 'this' ? src.map(function (dp, i) { return i < todayIdx ? dp : null; }) : null);
       var arr = src.map(function (dp, i) {
         if (i < todayIdx) return self.copy(dp);
         var fresh = kind === 'repeat' ? self.copy(lastW[i]) : (kind === 'myself' ? { breakfast: null, lunch: null, dinner: null, snack: null } : rand[i]);
@@ -1625,7 +1647,7 @@ class Component extends DCLogic {
         var fill7 = bestFill;
         setTimeout(function () {
           var S = self.state, plan = self.copy(S.plan), td = self.TD;
-          var fresh = fill7();
+          var fresh = fill7((S.plan['this'] || []).map(function (dp, i) { return i < td ? dp : null; }));
           plan['this'] = (plan['this'] || fresh).map(function (dp, i) {
             if (i < td) return dp;
             if (i > td) return fresh[i];
@@ -1966,6 +1988,15 @@ class Component extends DCLogic {
 DC_MOUNT(Component, {"recipeSketchSize": 130});
 </script>
 
-<div aria-hidden="true" style="position:fixed;left:0;right:0;top:0;height:12px;background:#FFFFFF;z-index:9999;pointer-events:none"></div>
+<div id="edge-tint" aria-hidden="true" style="position:fixed;left:0;right:0;top:0;height:12px;background:#3D5CF6;z-index:9999;pointer-events:none"></div>
+<script>
+(function(){var app=document.getElementById('app'),done=false;
+function swap(){if(done||app.querySelector('.ck-intro'))return;done=true;
+var old=document.getElementById('edge-tint');if(old)old.remove();
+var w=document.createElement('div');w.id='edge-tint-white';w.setAttribute('aria-hidden','true');
+w.style.cssText='position:fixed;left:0;right:0;top:0;height:12px;background:#FFFFFF;z-index:9999;pointer-events:none';
+document.body.appendChild(w);mo.disconnect();}
+var mo=new MutationObserver(swap);mo.observe(app,{childList:true,subtree:true});setTimeout(swap,300);setTimeout(swap,7000);})();
+</script>
 </body>
 </html>
