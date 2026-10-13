@@ -662,10 +662,10 @@ html, body { height: 100%; background: var(--ground); }
           <svg width="22" height="22" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" fill="{{n.fill}}" stroke="#000000" stroke-width="1.8"></rect><path d="M3.5 10h17" fill="none" stroke="{{n.lineColor}}" stroke-width="1.8"></path><path d="M8 3v4M16 3v4" fill="none" stroke="#000000" stroke-width="1.8"></path><path d="M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01" fill="none" stroke="{{n.dotColor}}" stroke-width="2.2"></path></svg>
         </template>
         <template data-sc="if" value="{{n.isStock}}" hint-placeholder-val="{{ false }}">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="{{n.stroke}}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"></path><path d="M4 7.5l8 4.5 8-4.5M12 12v9"></path></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" fill="{{n.fill}}" stroke="#000000" stroke-width="1.8"></path><path d="M4 7.5l8 4.5 8-4.5M12 12v9" fill="none" stroke="{{n.lineColor}}" stroke-width="1.8"></path></svg>
         </template>
         <template data-sc="if" value="{{n.isList}}" hint-placeholder-val="{{ false }}">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="{{n.stroke}}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 6h10M10 12h10M10 18h10"></path><path d="M4 6l1.2 1.2L7.5 5M4 12l1.2 1.2L7.5 11M4 18l1.2 1.2L7.5 17"></path></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16.5" rx="2.5" fill="{{n.fill}}" stroke="{{n.listFrame}}" stroke-width="1.8"></rect><g transform="{{n.listTf}}"><path d="M10 6h10M10 12h10M10 18h10M4 6l1.2 1.2L7.5 5M4 12l1.2 1.2L7.5 11M4 18l1.2 1.2L7.5 17" fill="none" stroke="{{n.lineColor}}" stroke-width="{{n.listStroke}}"></path></g></svg>
         </template>
         <span>{{n.label}}</span>
       </button>
@@ -1602,7 +1602,7 @@ class Component extends DCLogic {
       return {
         label: n.label, isToday: n.key === 'today', isPlan: n.key === 'plan', isStock: n.key === 'stock', isList: n.key === 'list',
         current: on ? 'page' : 'false', fill: on ? '#000000' : 'none', stroke: on ? 2.2 : 1.8,
-        dotColor: on ? '#FFFFFF' : '#000000', lineColor: on ? '#FFFFFF' : '#000000',
+        dotColor: on ? '#FFFFFF' : '#000000', lineColor: on ? '#FFFFFF' : '#000000', listFrame: on ? '#000000' : 'none', listTf: on ? 'translate(12 12.25) scale(0.62) translate(-12 -12)' : '', listStroke: on ? 2.6 : 1.8,
         style: 'position: absolute; left: ' + n.left + 'px; width: ' + n.w + 'px; top: 0; height: 52px; border: none; background: transparent; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 13px; line-height: 16px; color: ' + (on ? '#000000' : '#202020') + '; font-weight: ' + (on ? 700 : 400) + ';',
         go: function () {
           if (n.key === 'plan') self.planScroll = 0;
